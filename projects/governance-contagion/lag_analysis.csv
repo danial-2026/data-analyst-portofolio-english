@@ -1,0 +1,13 @@
+relationship,lag_months,target,n,pearson_r
+External_Crisis_t-0 -> BPKH_Exposure_t,0,BPKH_Exposure,33,0.309
+External_Crisis_t-1 -> BPKH_Exposure_t,1,BPKH_Exposure,32,0.243
+External_Crisis_t-2 -> BPKH_Exposure_t,2,BPKH_Exposure,31,0.215
+External_Crisis_t-3 -> BPKH_Exposure_t,3,BPKH_Exposure,30,0.106
+External_Crisis_t-0 -> Public_Trust_t,0,Public_Trust,33,0.791
+External_Crisis_t-1 -> Public_Trust_t,1,Public_Trust,32,0.789
+External_Crisis_t-2 -> Public_Trust_t,2,Public_Trust,31,0.764
+External_Crisis_t-3 -> Public_Trust_t,3,Public_Trust,30,0.74
+External_Crisis_t-0 -> GCI_t,0,GCI,33,0.859
+External_Crisis_t-1 -> GCI_t,1,GCI,32,0.844
+External_Crisis_t-2 -> GCI_t,2,GCI,31,0.826
+External_Crisis_t-3 -> GCI_t,3,GCI,30,0.803
