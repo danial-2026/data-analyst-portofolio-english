@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DIFRI | Indonesia Digital Financial Risk Observatory</title>
+<meta name="description" content="Interactive research observatory for consumer-reported digital financial risk signals in Indonesia.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+:root{--bg:#f4f6f8;--paper:#fff;--ink:#172431;--muted:#71808d;--line:#e4e9ed;--nav:#111e2b;--nav2:#1b2c3c;--teal:#16a6a1;--blue:#3778d5;--orange:#e28b4d;--violet:#9272d5;--green:#4d9a76;--shadow:0 8px 28px #1b2c3c0b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 'DM Sans',sans-serif}
+.shell{min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:258px;background:var(--nav);color:#dbe5ec;padding:26px 17px;display:flex;flex-direction:column;z-index:20;transition:transform .3s ease}
+.brand{display:flex;align-items:center;gap:11px;padding:0 10px 27px;border-bottom:1px solid #ffffff18}.brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#19b6aa,#397ad8);display:grid;place-items:center;color:white;font:800 18px Manrope}.brand strong{display:block;font:800 15px Manrope;letter-spacing:.08em;color:white}.brand small{color:#8fa3b2;font-size:10px;letter-spacing:.13em;text-transform:uppercase}
+.nav-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#718697;padding:25px 12px 9px;font-weight:700}.nav{display:grid;gap:5px}.nav button{border:0;background:transparent;color:#aebdc8;padding:11px 12px;border-radius:9px;text-align:left;display:flex;align-items:center;gap:12px;cursor:pointer;font:600 13px 'DM Sans';transition:.2s}.nav button:hover{background:#ffffff0c;color:white;transform:translateX(2px)}.nav button.active{background:linear-gradient(100deg,#1b777c55,#3478bd33);color:white;box-shadow:inset 3px 0 var(--teal)}.ico{width:19px;text-align:center;font-size:16px}.side-foot{margin-top:auto;padding:15px 11px 0;border-top:1px solid #ffffff18;color:#8296a5;font-size:11px}.live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#55c69a;margin-right:7px;box-shadow:0 0 0 4px #55c69a20}
+main{margin-left:258px;min-height:100vh}.topbar{height:66px;background:#ffffffd9;backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 38px;position:sticky;top:0;z-index:10}.crumb{font-size:12px;color:var(--muted)}.crumb b{color:var(--ink)}.topright{display:flex;align-items:center;gap:15px;color:var(--muted);font-size:11px}.status{padding:6px 10px;background:#e8f6f1;color:#287c61;border-radius:30px;font-weight:700}.menu-toggle{display:none;border:0;background:none;font-size:22px}
+.content{max-width:1500px;margin:auto;padding:34px 38px 55px}.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:25px;margin-bottom:26px;animation:rise .5s both}.eyebrow{font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#258f91}.hero h1{font:800 clamp(27px,3vw,38px)/1.13 Manrope;margin:8px 0 9px;letter-spacing:-.04em}.hero p{margin:0;color:var(--muted);max-width:720px}.period{background:white;border:1px solid var(--line);padding:9px 13px;border-radius:9px;font-size:11px;color:#657583;white-space:nowrap}
+.panel{display:none;animation:rise .35s ease both}.panel.active{display:block}@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.notice{background:#fff9ed;border:1px solid #f1dfbf;border-left:3px solid #e5a44f;border-radius:9px;padding:12px 16px;color:#765b2f;font-size:12px;margin-bottom:22px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0 20px}.kpi,.card{background:var(--paper);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow)}.kpi{padding:18px 19px;position:relative;overflow:hidden;transition:transform .22s,box-shadow .22s}.kpi:hover{transform:translateY(-3px);box-shadow:0 13px 32px #1b2c3c12}.kpi:after{content:"";position:absolute;width:70px;height:70px;border-radius:50%;right:-22px;top:-28px;background:var(--wash,#e7f5f3)}.kpi label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}.kpi strong{display:block;font:800 29px Manrope;letter-spacing:-.04em;margin:6px 0 1px}.kpi small{color:var(--muted);font-size:11px}
+.section-head{display:flex;justify-content:space-between;align-items:end;margin:30px 0 13px}.section-head h2{font:800 19px Manrope;margin:0;letter-spacing:-.025em}.section-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.card{padding:19px;min-width:0}.card.wide{grid-column:1/-1}.card-head{display:flex;justify-content:space-between;gap:10px;align-items:start;margin-bottom:15px}.card h3{font:700 13px Manrope;margin:0}.card .desc{font-size:11px;color:var(--muted);margin-top:4px}.tag{font-size:10px;background:#f1f5f7;color:#6a7b88;padding:5px 8px;border-radius:6px;white-space:nowrap}.chart-wrap{height:285px;position:relative}.chart-wrap.short{height:235px}.chart-wrap.tall{height:340px}
+.controls{display:flex;flex-wrap:wrap;align-items:end;gap:11px;margin:17px 0}.field{display:grid;gap:5px}.field label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}.field select,.field input{border:1px solid var(--line);background:white;border-radius:8px;padding:9px 11px;color:var(--ink);font:12px 'DM Sans';min-width:145px;outline:none}.field input:focus,.field select:focus{border-color:var(--teal);box-shadow:0 0 0 3px #16a6a11a}
+.table-card{background:white;border:1px solid var(--line);border-radius:12px;overflow:hidden}.table-scroll{overflow:auto;max-height:510px}table{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap}th{position:sticky;top:0;background:#f5f8fa;color:#647482;text-transform:uppercase;letter-spacing:.06em;font-size:9px;text-align:left;padding:12px 13px;z-index:1}td{padding:10px 13px;border-top:1px solid #edf0f2;color:#40505d}tbody tr:hover{background:#f7fbfb}.table-foot{padding:11px 14px;color:var(--muted);font-size:10px;border-top:1px solid var(--line)}
+.btn{border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:white;color:#40515e;font:600 11px 'DM Sans';cursor:pointer;transition:.2s}.btn:hover{border-color:var(--teal);color:#168a87}.pill-row{display:flex;gap:7px;flex-wrap:wrap}.pill{padding:7px 11px;border:1px solid var(--line);border-radius:30px;background:white;color:#6d7c88;font-size:11px;cursor:pointer}.pill.active{background:#e7f5f3;border-color:#b8e4dd;color:#16827d;font-weight:700}
+.download-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.download-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:9px;color:#425461;text-decoration:none;font-size:11px;transition:.2s}.download-item:hover{border-color:#8bd0c7;background:#f7fcfb;transform:translateY(-1px)}.download-item span:last-child{color:var(--teal);font-weight:700}
+.method{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.step{padding:14px;border:1px solid var(--line);border-radius:10px;background:#fafcfd}.step b{font:800 11px Manrope;color:#238c8b}.step strong{display:block;font:700 12px Manrope;margin:7px 0 3px}.step p{font-size:10px;color:var(--muted);margin:0}
+.footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);color:#87939d;font-size:10px;display:flex;justify-content:space-between;gap:20px}
+.empty{padding:28px;text-align:center;color:var(--muted)}.range{width:180px;accent-color:var(--teal)}
+@media(max-width:1050px){.sidebar{width:225px}main{margin-left:225px}.content{padding:28px 24px}.topbar{padding:0 24px}.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.sidebar{transform:translateX(-100%);width:260px}.sidebar.open{transform:translateX(0);box-shadow:15px 0 40px #0003}main{margin-left:0}.menu-toggle{display:block}.topbar{padding:0 16px}.content{padding:23px 15px}.grid{grid-template-columns:1fr}.hero{display:block}.period{display:inline-block;margin-top:14px}.kpis{gap:9px}.kpi{padding:14px}.kpi strong{font-size:24px}.download-list,.method{grid-template-columns:1fr 1fr}.topright .hide-mobile{display:none}}
+@media(max-width:430px){.kpis{grid-template-columns:1fr 1fr}.download-list,.method{grid-template-columns:1fr}.hero h1{font-size:27px}}
+
+
+/* Mobile and tablet refinements */
+.mobile-scrim{display:none}
+button,select,input,a{-webkit-tap-highlight-color:transparent}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #16a6a155;outline-offset:2px}
+canvas{max-width:100%}
+.table-scroll{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+@media(max-width:760px){
+ .mobile-scrim{display:block;position:fixed;inset:0;background:#07142180;backdrop-filter:blur(2px);z-index:18;opacity:0;pointer-events:none;transition:opacity .25s}
+ .mobile-scrim.show{opacity:1;pointer-events:auto}
+ .sidebar{z-index:21;padding-top:20px}
+ .topbar{height:58px}
+ .menu-toggle{width:40px;height:40px;border-radius:9px;background:#edf5f5;color:#1a7777;display:grid;place-items:center;cursor:pointer}
+ .content{padding:20px 13px 38px}
+ .hero{margin-bottom:18px}
+ .hero h1{line-height:1.15}
+ .hero p{font-size:12px}
+ .notice{font-size:11px;padding:11px 12px}
+ .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}
+ .kpi{min-height:112px;padding:13px 12px;border-radius:11px}
+ .kpi label{font-size:9px}
+ .kpi strong{font-size:23px;margin:7px 0 2px}
+ .kpi small{font-size:9px;line-height:1.4;display:block}
+ .section-head{margin:23px 0 11px;align-items:flex-start}
+ .section-head h2{font-size:17px}
+ .section-head p{font-size:11px}
+ .grid{grid-template-columns:minmax(0,1fr);gap:11px}
+ .card{padding:14px;border-radius:11px}
+ .card.wide{grid-column:auto}
+ .chart-wrap{height:255px}
+ .chart-wrap.short{height:220px}
+ .chart-wrap.tall{height:280px}
+ .controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .field{min-width:0}
+ .field select,.field input{width:100%;min-width:0;min-height:42px;font-size:12px}
+ .controls .field:nth-child(3){grid-column:1/-1}
+ .controls .btn{min-height:40px}
+ .method{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .step{padding:11px}
+ .step p{font-size:10px}
+ .download-list{grid-template-columns:minmax(0,1fr)}
+ .download-item{min-height:43px}
+ .footer{display:block;line-height:1.8}
+ .footer span{display:block}
+ .table-scroll{max-height:58vh}
+ th{font-size:9px;padding:10px}
+ td{padding:10px;font-size:10px}
+}
+@media(max-width:380px){
+ .content{padding-left:10px;padding-right:10px}
+ .kpi strong{font-size:21px}
+ .kpi{padding:11px 10px}
+ .period{font-size:9px}
+ .chart-wrap{height:230px}
+ .method{grid-template-columns:1fr 1fr}
+ .topright{gap:6px}
+ .status{font-size:9px;padding:5px 7px}
+}
+@media(min-width:761px) and (max-width:1050px){
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .card.wide{grid-column:1/-1}
+ .chart-wrap{height:260px}
+}
+
+</style></head>
+<body><div class="mobile-scrim" id="mobileScrim"></div><div class="shell">
+<aside class="sidebar" id="sidebar">
+ <div class="brand"><div class="brand-mark">D</div><div><strong>DIFRI</strong><small>Research observatory</small></div></div>
+ <div class="nav-label">Explore data</div><nav class="nav">
+  <button class="active" data-tab="overview"><span class="ico">◫</span>National overview</button>
+  <button data-tab="pillars"><span class="ico">◈</span>Risk pillars</button>
+  <button data-tab="sectors"><span class="ico">▥</span>Sector analysis</button>
+  <button data-tab="apps"><span class="ico">⌕</span>Application explorer</button>
+ </nav>
+ <div class="nav-label">Research resources</div><nav class="nav">
+  <button data-tab="validation"><span class="ico">⌁</span>Methods & validation</button>
+  <button data-tab="downloads"><span class="ico">⇩</span>Data downloads</button>
+ </nav>
+ <div class="side-foot"><span class="live"></span><span id="sideStatus">Connecting to datasets…</span><br><br>Indonesia · Oct 2024 — Sep 2026</div>
+</aside>
+<main>
+ <div class="topbar"><div style="display:flex;align-items:center;gap:12px"><button class="menu-toggle" id="menuToggle">☰</button><div class="crumb">DIFRI Observatory&nbsp; / &nbsp;<b id="crumb">National overview</b></div></div><div class="topright"><span class="hide-mobile">CONSUMER-GENERATED RISK SIGNALS</span><span class="status" id="loadStatus">Loading data</span></div></div>
+ <div class="content">
+  <div class="hero"><div><div class="eyebrow">Digital finance · Indonesia</div><h1 id="pageTitle">National risk overview</h1><p id="pageDesc">A longitudinal view of consumer-reported digital financial risk signals across Banking, Payment, and Pindar.</p></div><div class="period">◷ &nbsp; OCT 2024 — SEP 2026 <b>·</b> 24 MONTHS</div></div>
+  <div class="notice"><b>How to read this index.</b> DIFRI summarizes risk signals in self-selected consumer app reviews. It is not a population prevalence estimate, realized monetary loss, or a direct measure of digital resilience. Severity is an exploratory rule-based proxy, not human-validated. September 2026 is partial/provisional (through 19 September).</div>
+
+  <section id="overview" class="panel active">
+   <div class="kpis">
+    <div class="kpi" style="--wash:#e4f4f1"><label>Mean national DIFRI</label><strong id="kDifri">—</strong><small>24-month arithmetic composite · 0–4</small></div>
+    <div class="kpi" style="--wash:#eaf0fb"><label>Highest pillar · SF</label><strong id="kSF">—</strong><small>Security & Fraud mean score</small></div>
+    <div class="kpi" style="--wash:#f9eee5"><label>Analysed reviews</label><strong>4.23m</strong><small>4,232,749 valid unique reviews</small></div>
+    <div class="kpi" style="--wash:#f0ebfa"><label>Applications covered</label><strong>122</strong><small>46 Banking · 29 Payment · 47 Pindar</small></div>
+   </div>
+   <div class="section-head"><div><h2>National index trajectory</h2><p>Monthly DIFRI score with pillar-level context.</p></div><span class="tag">INDEX · 0–4</span></div>
+   <div class="grid">
+    <div class="card"><div class="card-head"><div><h3>Digital Financial Risk Index</h3><div class="desc">Equal-sector, four-pillar arithmetic composite</div></div><span class="tag">Monthly</span></div><div class="chart-wrap"><canvas id="nationalChart"></canvas></div></div>
+    <div class="card"><div class="card-head"><div><h3>Mean pillar profile</h3><div class="desc">Average severity-weighted score across the observation window</div></div><span class="tag">0–4</span></div><div class="chart-wrap"><canvas id="pillarChart"></canvas></div></div>
+    <div class="card wide"><div class="card-head"><div><h3>Four-pillar monthly profile</h3><div class="desc">Compare the movement of each risk dimension over time</div></div><span class="tag">Trend comparison</span></div><div class="chart-wrap tall"><canvas id="allPillarsChart"></canvas></div></div>
+   </div>
+   <div class="section-head"><div><h2>Reading the latest pattern</h2><p>Descriptive summaries from the supplied national monthly dataset.</p></div></div>
+   <div class="grid"><div class="card"><h3>Trend summary</h3><p id="trendSummary" class="desc" style="font-size:13px;line-height:1.8"></p></div><div class="card"><h3>Pillar ranking</h3><div id="pillarRanking"></div></div></div>
+  </section>
+
+  <section id="pillars" class="panel">
+   <div class="section-head"><div><h2>Risk pillar analysis</h2><p>Explore the prevalence and severity-weighted burden of each risk dimension.</p></div></div>
+   <div class="controls"><div class="field"><label>Risk dimension</label><select id="pillarSelect"><option value="SF">Security & Fraud (SF)</option><option value="DP">Data & Privacy (DP)</option><option value="TO">Transaction & Operational (TO)</option><option value="CP">Consumer Protection (CP)</option></select></div></div>
+   <div class="grid"><div class="card"><div class="card-head"><div><h3>National pillar score</h3><div class="desc">Monthly severity-weighted burden</div></div><span class="tag">0–4</span></div><div class="chart-wrap"><canvas id="pillarTrend"></canvas></div></div><div class="card"><div class="card-head"><div><h3>Predicted prevalence by sector</h3><div class="desc">Model-predicted share of reviews containing the risk signal</div></div><span class="tag">Percent</span></div><div class="chart-wrap"><canvas id="prevChart"></canvas></div></div><div class="card wide"><div class="card-head"><div><h3>Monthly prevalence and severity diagnostics</h3><div class="desc">Empirical-Bayes prevalence and pillar score from national pillar series</div></div></div><div class="chart-wrap"><canvas id="pillarDiagnostic"></canvas></div></div></div>
+  </section>
+
+  <section id="sectors" class="panel">
+   <div class="section-head"><div><h2>Sector analysis</h2><p>Compare Banking, Payment, and Pindar trajectories and their four risk dimensions.</p></div></div>
+   <div class="controls"><div class="field"><label>Sector</label><select id="sectorSelect"><option value="banking">Banking</option><option value="payment">Payment</option><option value="pindar">Pindar</option></select></div></div>
+   <div class="grid"><div class="card"><div class="card-head"><div><h3>Sector DIFRI trajectory</h3><div class="desc">Monthly sector composite</div></div><span class="tag">0–4</span></div><div class="chart-wrap"><canvas id="sectorTrend"></canvas></div></div><div class="card"><div class="card-head"><div><h3>Sector pillar profile</h3><div class="desc">Monthly score by risk dimension</div></div></div><div class="chart-wrap"><canvas id="sectorPillars"></canvas></div></div><div class="card wide"><div class="card-head"><div><h3>Sector comparison</h3><div class="desc">All-sector monthly DIFRI comparison</div></div></div><div class="chart-wrap"><canvas id="sectorCompare"></canvas></div></div></div>
+  </section>
+
+  <section id="apps" class="panel">
+   <div class="section-head"><div><h2>Application explorer</h2><p>Filter app-month-pillar estimates. Values are derived indicators, not raw review records.</p></div><span class="tag">Derived data</span></div>
+   <div class="controls"><div class="field"><label>Sector</label><select id="appSector"><option value="">All sectors</option><option value="banking">Banking</option><option value="payment">Payment</option><option value="pindar">Pindar</option></select></div><div class="field"><label>Pillar</label><select id="appPillar"><option value="">All pillars</option><option value="security_fraud">SF · Security & Fraud</option><option value="data_privacy">DP · Data & Privacy</option><option value="transaction_operational">TO · Transaction & Operational</option><option value="consumer_protection">CP · Consumer Protection</option></select></div><div class="field"><label>Search application ID</label><input id="appSearch" placeholder="Type package identifier…"></div><button class="btn" id="clearApps">Reset filters</button></div>
+   <div class="card" style="margin-bottom:14px"><div class="card-head"><div><h3>Filtered records</h3><div class="desc">Top 300 matching records, ordered by month and application</div></div><span class="tag" id="appCount">—</span></div><div class="table-scroll"><table><thead><tr><th>Sector</th><th>Application ID</th><th>Month</th><th>Pillar</th><th>Reviews</th><th>EB prevalence</th><th>Severity burden</th></tr></thead><tbody id="appRows"></tbody></table></div><div class="table-foot" id="appFoot"></div></div>
+  </section>
+
+  <section id="validation" class="panel">
+   <div class="section-head"><div><h2>Methods & validation</h2><p>Model selection, annotation reliability, and alternative index specifications.</p></div></div>
+   <div class="card" style="margin-bottom:15px"><h3>Index construction workflow</h3><div class="method" style="margin-top:14px"><div class="step"><b>01 · CLASSIFY</b><strong>Review-level signals</strong><p>Supervised multi-label classification into four risk pillars.</p></div><div class="step"><b>02 · ADJUST</b><strong>Empirical Bayes</strong><p>Beta-Binomial shrinkage of app-month prevalence.</p></div><div class="step"><b>03 · WEIGHT</b><strong>Severity proxy</strong><p>Exploratory rule-based severity weighting with pooled estimates.</p></div><div class="step"><b>04 · AGGREGATE</b><strong>Hierarchical index</strong><p>Equal-app within sector, equal-sector nationally, four-pillar mean.</p></div></div></div>
+   <div class="grid"><div class="card"><div class="card-head"><div><h3>Alternative aggregation specifications</h3><div class="desc">Mean index under each specification</div></div></div><div class="chart-wrap"><canvas id="robustChart"></canvas></div></div><div class="card"><div class="card-head"><div><h3>Monte Carlo uncertainty</h3><div class="desc">Probability-weighted estimate and 95% simulation interval</div></div></div><div class="chart-wrap"><canvas id="mcChart"></canvas></div></div></div>
+   <div class="section-head"><div><h2>Selected model performance</h2><p>Selected algorithm for each pillar in the supplied model comparison table.</p></div></div>
+   <div class="table-card" style="margin-bottom:16px"><div class="table-scroll"><table id="modelTable"><thead><tr><th>Pillar</th><th>Model</th><th>PR-AUC</th><th>F1</th><th>Precision</th><th>Recall</th><th>Threshold</th></tr></thead><tbody></tbody></table></div></div>
+   <div class="section-head"><div><h2>Inter-annotator reliability</h2><p>Pairwise agreement on overlapping annotated reviews.</p></div></div>
+   <div class="table-card"><div class="table-scroll"><table id="reliabilityTable"><thead><tr><th>Label</th><th>Annotator pair</th><th>N</th><th>Agreement</th><th>Cohen's κ</th></tr></thead><tbody></tbody></table></div></div>
+   <div class="notice" style="margin-top:16px">Interpretation: model metrics and agreement statistics describe the supplied annotation and evaluation design. They do not establish that all consumer-reported risks are detected or that severity scores represent realized losses.</div>
+  </section>
+
+  <section id="downloads" class="panel">
+   <div class="section-head"><div><h2>Data downloads</h2><p>Download the derived datasets that power this public observatory.</p></div></div>
+   <div class="card"><div class="card-head"><div><h3>Research datasets</h3><div class="desc">CSV files · UTF-8 · aggregated or derived analytical data</div></div><span class="tag">14 files</span></div><div class="download-list" id="downloadLinks"></div></div>
+   <div class="section-head"><div><h2>Data scope & caveats</h2></div></div>
+   <div class="grid"><div class="card"><h3>Coverage</h3><p class="desc" style="font-size:12px;line-height:1.9">122 applications with valid reviews across Banking (46), Payment (29), and Pindar (47). The analytical corpus contains 4,232,749 valid unique reviews over October 2024–September 2026. September 2026 is partial/provisional through 19 September.</p></div><div class="card"><h3>Responsible interpretation</h3><p class="desc" style="font-size:12px;line-height:1.9">Reviews are self-selected and are not a probability sample. Prevalence estimates represent model-predicted review signals, not population incidence. Severity is a rule-based proxy, not independently human-validated monetary harm. Raw review text is not published here.</p></div></div>
+  </section>
+  <div class="footer"><span>© DIFRI Research Observatory · Indonesia</span><span>Research transparency · Exploratory monitoring · Not a regulatory rating</span></div>
+ </div>
+</main></div>
+<script>
+const DATA='data/';
+const files=['national_monthly.csv','national_pillar_monthly.csv','sector_monthly.csv','sector_pillar_monthly.csv','app_month_pillar.csv','eb_cap_sensitivity.csv','robustness_aggregation.csv','monte_carlo_uncertainty.csv','partial_month_benchmark.csv','annotation_reliability.csv','model_selection.csv','risk_prevalence_by_sector.csv','severity_reference.csv','difri_monthly_main.csv'];
+const db={}; const charts={};
+const colors={SF:'#3778d5',DP:'#9272d5',TO:'#16a6a1',CP:'#e28b4d'};
+const pillarNames={SF:'Security & Fraud',DP:'Data & Privacy',TO:'Transaction & Operational',CP:'Consumer Protection'};
+const pillarKeys={SF:'security_fraud',DP:'data_privacy',TO:'transaction_operational',CP:'consumer_protection'};
+const pillarOrder=['SF','DP','TO','CP'];
+const fmt=(v,n=3)=>Number(v).toFixed(n);
+const avg=(a,k)=>a.reduce((s,r)=>s+(Number(r[k])||0),0)/(a.length||1);
+const pct=v=>(100*Number(v)).toFixed(2)+'%';
+const nice=s=>String(s||'').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
+function load(name){return new Promise((resolve,reject)=>Papa.parse(DATA+name,{download:true,header:true,dynamicTyping:true,skipEmptyLines:true,complete:r=>resolve(r.data),error:reject}));}
+function makeChart(id,type,labels,datasets,extra={}){if(charts[id])charts[id].destroy();const el=document.getElementById(id);if(!el)return;charts[id]=new Chart(el,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,animation:{duration:850,easing:'easeOutQuart'},interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:7,padding:17,font:{family:'DM Sans',size:10}}},tooltip:{backgroundColor:'#142434',padding:11,titleFont:{family:'Manrope'},bodyFont:{family:'DM Sans'}}},scales:{x:{grid:{display:false},ticks:{color:'#83909b',font:{size:9},maxRotation:0,autoSkip:true}},y:{grid:{color:'#edf1f3'},ticks:{color:'#83909b',font:{size:9}},beginAtZero:true}},...extra}});}
+function monthly(){return db['national_monthly.csv'].slice().sort((a,b)=>a.review_month.localeCompare(b.review_month));}
+function renderOverview(){
+ const d=monthly(),m=avg(d,'DIFRI'),means=Object.fromEntries(pillarOrder.map(p=>[p,avg(d,p)]));
+ document.getElementById('kDifri').textContent=fmt(m,4);document.getElementById('kSF').textContent=fmt(means.SF,4);
+ makeChart('nationalChart','line',d.map(x=>x.review_month),[{label:'DIFRI',data:d.map(x=>x.DIFRI),borderColor:'#16a6a1',backgroundColor:'#16a6a11c',fill:true,tension:.32,pointRadius:2,pointHoverRadius:5,borderWidth:2.5}]);
+ makeChart('pillarChart','bar',pillarOrder.map(p=>p),[{label:'Mean pillar score',data:pillarOrder.map(p=>means[p]),backgroundColor:pillarOrder.map(p=>colors[p]),borderRadius:6,maxBarThickness:42}],{plugins:{legend:{display:false}}});
+ makeChart('allPillarsChart','line',d.map(x=>x.review_month),pillarOrder.map(p=>({label:p+' · '+pillarNames[p],data:d.map(x=>x[p]),borderColor:colors[p],backgroundColor:colors[p]+'12',tension:.3,pointRadius:1.5,borderWidth:2,fill:false})));
+ const peak=d.reduce((a,b)=>b.DIFRI>a.DIFRI?b:a),low=d.reduce((a,b)=>b.DIFRI<a.DIFRI?b:a),last=d[d.length-1];
+ document.getElementById('trendSummary').textContent=`Across the 24-month series, mean DIFRI was ${fmt(m,4)}. The highest monthly value was ${fmt(peak.DIFRI,4)} in ${peak.review_month}; the lowest was ${fmt(low.DIFRI,4)} in ${low.review_month}. The latest observation (${last.review_month}) was ${fmt(last.DIFRI,4)} and is marked ${last.month_status==='partial'?'partial/provisional':'complete'} in the supplied data. The series fluctuates rather than following a monotonic trend.`;
+ document.getElementById('pillarRanking').innerHTML=pillarOrder.slice().sort((a,b)=>means[b]-means[a]).map((p,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #edf0f2"><b style="color:${colors[p]}">${String(i+1).padStart(2,'0')}</b><span style="flex:1;font-size:12px">${pillarNames[p]}</span><strong style="font:700 13px Manrope">${fmt(means[p],4)}</strong></div>`).join('');
+}
+function renderPillar(){
+ const p=document.getElementById('pillarSelect').value,d=monthly(),rows=db['risk_prevalence_by_sector.csv'].filter(x=>x['Risk dimension']===p);
+ makeChart('pillarTrend','line',d.map(x=>x.review_month),[{label:p+' score',data:d.map(x=>x[p]),borderColor:colors[p],backgroundColor:colors[p]+'18',fill:true,tension:.3,pointRadius:1.5,borderWidth:2.4}]);
+ makeChart('prevChart','bar',rows.map(x=>x.Sector),[{label:'Predicted prevalence',data:rows.map(x=>x['Prevalence (%)']),backgroundColor:rows.map(()=>colors[p]),borderRadius:6,maxBarThickness:48}],{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'%'}}}});
+ const np=db['national_pillar_monthly.csv'].filter(x=>x.pillar===pillarKeys[p]).sort((a,b)=>a.review_month.localeCompare(b.review_month));
+ makeChart('pillarDiagnostic','line',np.map(x=>x.review_month),[{label:'EB prevalence',data:np.map(x=>x.prevalence_eb),borderColor:'#3778d5',tension:.25,pointRadius:1.5},{label:'Severity-weighted pillar score',data:np.map(x=>x.pillar_score),borderColor:colors[p],tension:.25,pointRadius:1.5}],{});
+}
+function renderSector(){
+ const s=document.getElementById('sectorSelect').value,all=db['sector_monthly.csv'],rows=all.filter(x=>x.sector===s),months=[...new Set(rows.map(x=>x.review_month))].sort();
+ const difri=months.map(m=>{const z=rows.find(x=>x.review_month===m);return z?z.DIFRI_sector:null});
+ makeChart('sectorTrend','line',months,[{label:nice(s)+' DIFRI',data:difri,borderColor:'#16a6a1',backgroundColor:'#16a6a11c',fill:true,tension:.3,pointRadius:2,borderWidth:2.4}]);
+ const sp=db['sector_pillar_monthly.csv'].filter(x=>x.sector===s);
+ makeChart('sectorPillars','line',months,pillarOrder.map(p=>({label:p,data:months.map(m=>sp.find(x=>x.review_month===m&&x.pillar===pillarKeys[p])?.pillar_score??null),borderColor:colors[p],tension:.25,pointRadius:1.3,borderWidth:2})));
+ const sectors=['banking','payment','pindar'],allMonths=[...new Set(all.map(x=>x.review_month))].sort();
+ makeChart('sectorCompare','line',allMonths,sectors.map((sec,i)=>({label:nice(sec),data:allMonths.map(m=>all.find(x=>x.sector===sec&&x.review_month===m)?.DIFRI_sector??null),borderColor:['#16a6a1','#3778d5','#e28b4d'][i],tension:.3,pointRadius:1.5,borderWidth:2})));
+}
+function renderApps(){
+ const s=document.getElementById('appSector').value,p=document.getElementById('appPillar').value,q=document.getElementById('appSearch').value.toLowerCase().trim();
+ const rows=db['app_month_pillar.csv'].filter(x=>(!s||x.sector===s)&&(!p||x.pillar===p)&&String(x.app_id).toLowerCase().includes(q));
+ rows.sort((a,b)=>b.review_month.localeCompare(a.review_month)||String(a.app_id).localeCompare(String(b.app_id)));
+ const show=rows.slice(0,300);
+ document.getElementById('appRows').innerHTML=show.map(x=>`<tr><td>${nice(x.sector)}</td><td>${x.app_id}</td><td>${x.review_month}</td><td>${nice(x.pillar)}</td><td>${Number(x.total_reviews).toLocaleString('en-US')}</td><td>${pct(x.prevalence_eb)}</td><td>${fmt(x.pillar_severity_burden,4)}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">No matching records.</td></tr>';
+ document.getElementById('appCount').textContent=rows.length.toLocaleString('en-US')+' records';document.getElementById('appFoot').textContent=`Showing ${show.length.toLocaleString('en-US')} of ${rows.length.toLocaleString('en-US')} matching app-month-pillar records.`;
+}
+function renderValidation(){
+ const r=db['robustness_aggregation.csv'];
+ makeChart('robustChart','bar',r.map(x=>x.Specification),[{label:'Mean index',data:r.map(x=>x.Mean),backgroundColor:r.map((x,i)=>i===0?'#16a6a1':'#9aabb7'),borderRadius:5}],{indexAxis:'y',plugins:{legend:{display:false}}});
+ const mc=db['monte_carlo_uncertainty.csv'].slice().sort((a,b)=>a.review_month.localeCompare(b.review_month));
+ makeChart('mcChart','line',mc.map(x=>x.review_month),[{label:'MC mean',data:mc.map(x=>x.mc_mean),borderColor:'#3778d5',tension:.25,pointRadius:1.5},{label:'95% lower',data:mc.map(x=>x.mc_lower_95),borderColor:'#e28b4d',borderDash:[4,4],pointRadius:0,borderWidth:1.5},{label:'95% upper',data:mc.map(x=>x.mc_upper_95),borderColor:'#e28b4d',borderDash:[4,4],pointRadius:0,borderWidth:1.5}]);
+ const selected=db['model_selection.csv'].filter(x=>String(x.Selected).trim()==='✓');
+ document.querySelector('#modelTable tbody').innerHTML=selected.map(x=>`<tr><td>${x.Dimension||x.Pillar}</td><td>${x.Model}</td><td>${fmt(x['PR-AUC'])}</td><td>${fmt(x.F1)}</td><td>${fmt(x.Precision)}</td><td>${fmt(x.Recall)}</td><td>${fmt(x.Threshold,3)}</td></tr>`).join('');
+ document.querySelector('#reliabilityTable tbody').innerHTML=db['annotation_reliability.csv'].map(x=>`<tr><td>${x.label}</td><td>${x.annotator_1}–${x.annotator_2}</td><td>${x.n}</td><td>${pct(x.agreement)}</td><td>${fmt(x.kappa,4)}</td></tr>`).join('');
+}
+function renderDownloads(){document.getElementById('downloadLinks').innerHTML=files.map(f=>`<a class="download-item" href="${DATA+f}" download><span>▤ &nbsp;${f}</span><span>↓ CSV</span></a>`).join('');}
+const titles={overview:['National risk overview','A longitudinal view of consumer-reported digital financial risk signals across Banking, Payment, and Pindar.'],pillars:['Risk pillar analysis','Explore the prevalence and severity-weighted burden of each risk dimension.'],sectors:['Sector analysis','Compare sector-level index trajectories and pillar profiles.'],apps:['Application explorer','Inspect derived app-month-pillar estimates using interactive filters.'],validation:['Methods & validation','Review the analytical workflow, model performance, and sensitivity evidence.'],downloads:['Data downloads','Access the derived datasets used by this public research observatory.']};
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.tab;document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===id));document.getElementById('crumb').textContent=b.textContent.trim();document.getElementById('pageTitle').textContent=titles[id][0];document.getElementById('pageDesc').textContent=titles[id][1];closeMobileNav();setTimeout(()=>Object.values(charts).forEach(c=>c.resize()),80);}));
+const sidebar=document.getElementById('sidebar'),scrim=document.getElementById('mobileScrim');
+function closeMobileNav(){sidebar.classList.remove('open');scrim.classList.remove('show');}
+document.getElementById('menuToggle').addEventListener('click',()=>{sidebar.classList.toggle('open');scrim.classList.toggle('show',sidebar.classList.contains('open'));});
+scrim.addEventListener('click',closeMobileNav);
+window.addEventListener('resize',()=>{if(window.innerWidth>760)closeMobileNav();});
+document.getElementById('pillarSelect').addEventListener('change',renderPillar);document.getElementById('sectorSelect').addEventListener('change',renderSector);
+['appSector','appPillar','appSearch'].forEach(id=>document.getElementById(id).addEventListener(id==='appSearch'?'input':'change',renderApps));
+document.getElementById('clearApps').addEventListener('click',()=>{['appSector','appPillar','appSearch'].forEach(id=>document.getElementById(id).value='');renderApps();});
+(async()=>{try{await Promise.all(files.map(async f=>db[f]=await load(f)));renderOverview();renderPillar();renderSector();renderApps();renderValidation();renderDownloads();document.getElementById('loadStatus').textContent='DATA LOADED';document.getElementById('sideStatus').textContent='All datasets connected';}catch(e){document.getElementById('loadStatus').textContent='DATA ERROR';document.getElementById('sideStatus').textContent='Dataset loading failed';console.error(e);alert('Dataset loading failed. Pastikan dashboard dibuka melalui GitHub Pages atau local web server, bukan file://. Detail: '+e.message);}})();
+</script></body></html>
